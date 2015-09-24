@@ -17,6 +17,8 @@ var categories = require('./routes/categories');
 var components = require('./routes/components');
 var search = require('./routes/search');
 var User = require('./models/User')
+var sites = require('./routes/sites');
+var Site = require('./models/Site');
 var port = process.env.PORT || '3000';
 var http = require('http');
 
@@ -84,6 +86,19 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+app.all('/*', function(req, res, next) {
+  var siteName = req.hostname.split('.')[0];
+  Site.findOne({ 'name': siteName }, function(error, site) {
+    if (site === null) {
+      res.sendStatus(404);
+      return;
+    }
+    req.query.siteId = site._id
+    next();
+  });
+});
+
 app.use(express.static(path.join(__dirname, '/../build')));
 
 app.use(function(req, res, next) {
@@ -112,6 +127,7 @@ app.get('/logout', function(req, res) {
     req.logout();
     res.redirect('/');
 });
+
 
 // Serve index.html for all routes to leave routing up to react-router
 app.all('/*', function(req, res) {

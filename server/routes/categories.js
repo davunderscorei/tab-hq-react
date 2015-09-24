@@ -29,7 +29,7 @@ router.get('/:id', function (req, res, next) {
   if (req.query.includes !== 'sections') {
     query = query.select('_id title order');
   }
-  
+
   query.exec(ResponseHelper.sanitizeAndSendResponse(res));
 });
 
